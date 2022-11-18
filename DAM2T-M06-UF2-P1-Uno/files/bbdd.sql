@@ -24,3 +24,5 @@ create table partida (
     constraint carta_partida foreign key (id_carta) references carta (id)
     
 );
+
+insert into jugador values (1,'hector','123','héctor',0,0);
