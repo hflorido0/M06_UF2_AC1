@@ -25,4 +25,4 @@ create table partida (
     
 );
 
-insert into jugador values (1,'hector','123','héctor',0,0);
+insert into jugador values (1,'hector','123','hector',0,0);

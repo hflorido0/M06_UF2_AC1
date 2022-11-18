@@ -67,7 +67,7 @@ public class Dao {
     	  	System.out.println(ps.toString());
             try (ResultSet rs = ps.executeQuery()) {
             	if (rs.next()) {
-            		jugador = new Jugador(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4));
+            		jugador = new Jugador(rs.getInt("id"), rs.getString("usuario"), rs.getInt("partidas"), rs.getInt("ganadas"));
             	}
             }
         }
