@@ -33,7 +33,7 @@ public class Dao {
 	public int getUltimoIdCarta() throws SQLException {
 		int carta = 0;	
 		try (Statement ps = conexion.createStatement()) { 
-			System.out.println(ps.toString());
+			//System.out.println(ps.toString());
 			try (ResultSet rs = ps.executeQuery(Constants.GET_CARTA_LAST_ID)) {
 				if (rs.next()) {
 					carta = rs.getInt(1);
@@ -47,11 +47,11 @@ public class Dao {
 	public Carta getUltimaCartaJugada() throws SQLException {
 		Carta carta = null;	
 		PreparedStatement ps = conexion.prepareStatement(Constants.GET_ULTIMA_CARTA);
-		System.out.println(ps.toString());
+		//System.out.println(ps.toString());
 		try (ResultSet rs = ps.executeQuery()) {
 			if (rs.next()) {
-				if (rs.getInt(2) != 0) {
-					carta = new Carta(rs.getInt(2), rs.getString(3), rs.getString(4), rs.getInt(5));
+				if (rs.getInt(1) != 0) {
+					carta = new Carta(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(5));
 				}
 			}
 		}
@@ -64,7 +64,7 @@ public class Dao {
     	try (PreparedStatement ps = conexion.prepareStatement(Constants.GET_JUGADOR_POR_USU_PASS)) { 
     		ps.setString(1,usuario);
     	  	ps.setString(2,pass);
-    	  	System.out.println(ps.toString());
+    	  	//System.out.println(ps.toString());
             try (ResultSet rs = ps.executeQuery()) {
             	if (rs.next()) {
             		jugador = new Jugador(rs.getInt("id"), rs.getString("usuario"), rs.getInt("partidas"), rs.getInt("ganadas"));
@@ -79,10 +79,10 @@ public class Dao {
     	
     	try (PreparedStatement ps = conexion.prepareStatement(Constants.GET_MANO_JUGADOR_POR_ID)) { 
     		ps.setInt(1, id);
-    		System.out.println(ps.toString());
+    		//System.out.println(ps.toString());
             try (ResultSet rs = ps.executeQuery()) {
                 while(rs.next()){
-                	cartas.add(new Carta(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)));
+                	cartas.add(new Carta(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(5)));
                 }
             }
         }
@@ -92,7 +92,7 @@ public class Dao {
 	public void jugarCarta(Carta carta) throws SQLException {
 		try (PreparedStatement ps =  conexion.prepareStatement(Constants.JUGAR_CARTA)) { 
 			ps.setInt(1, carta.getId());
-			System.out.println(ps.toString());
+			//System.out.println(ps.toString());
 			ps.executeUpdate();
 		}
 	}
@@ -102,7 +102,7 @@ public class Dao {
 			ps.setInt(1, carta.getId_jugador());
 			ps.setString(2, carta.getNumero());
 			ps.setString(3, carta.getColor());
-    		System.out.println(ps.toString());
+    		//System.out.println(ps.toString());
 			ps.executeUpdate();
 		}
 	}
@@ -112,32 +112,27 @@ public class Dao {
 			ps.setInt(1, jugador.getPartidas());
 			ps.setInt(2, jugador.getGanadas());
 			ps.setInt(3, jugador.getId());
-    		System.out.println(ps.toString());
+    		//System.out.println(ps.toString());
             ps.execute();
         }
 	}
 
-	public void borrarUltimaCartaJugada(Carta carta) throws SQLException {
-		try (PreparedStatement ps =  conexion.prepareStatement(Constants.BORRAR_ULTIMA_CARTA_JUGADA)) { 
-			System.out.println(ps.toString());
+	public void marcarCartaEstado1(Carta carta) throws SQLException {
+		try (PreparedStatement ps =  conexion.prepareStatement(Constants.CAMBIAR_ESTADO_1)) { 
+			ps.setInt(1, carta.getId());
+			//System.out.println(ps.toString());
 			ps.execute();
 		}
-		
-		try (PreparedStatement ps =  conexion.prepareStatement(Constants.BORRAR_ULTIMA_CARTA_JUGADA_TABLA_CARTA)) { 
-			ps.setInt(1, carta.getId());
-    		System.out.println(ps.toString());
-            ps.execute();
-        }
 	}
 
 	public void borrarTodo() throws SQLException {
 		try (PreparedStatement ps =  conexion.prepareStatement(Constants.BORRAR_TABLA_CARTA)) { 
-			System.out.println(ps.toString());
+			//System.out.println(ps.toString());
 			ps.execute();
 		}
 		
 		try (PreparedStatement ps =  conexion.prepareStatement(Constants.BORRAR_TABLA_PARTIDA)) {
-    		System.out.println(ps.toString());
+    		//System.out.println(ps.toString());
             ps.execute();
         }
 	}
@@ -145,14 +140,14 @@ public class Dao {
 	public void sumarGanadas(int id) throws SQLException {
 		try (PreparedStatement ps =  conexion.prepareStatement(Constants.SUMAR_GANADAS)) { 
 			ps.setInt(1, id);
-			System.out.println(ps.toString());
+			//System.out.println(ps.toString());
 			ps.execute();
 		}
 	}
 
 	public void sumarJugadas() throws SQLException {
 		try (PreparedStatement ps =  conexion.prepareStatement(Constants.SUMAR_JUGADAS)) { 
-			System.out.println(ps.toString());
+			//System.out.println(ps.toString());
 			ps.execute();
 		}
 	}

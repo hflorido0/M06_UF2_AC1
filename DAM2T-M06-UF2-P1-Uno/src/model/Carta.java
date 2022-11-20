@@ -8,10 +8,12 @@ public class Carta {
 	private int id;
 	private Numero numero;
 	private Color color;
+	private int estado;
 	private int id_jugador;
 	
-	public Carta(int id, String numero, String color, int id_jugador) {
+	public Carta(int id, String numero, String color, int id_jugador, int estado) {
 		this.id = id;
+		this.estado = estado;
 		this.numero = Numero.valueOf(numero);
 		this.color = Color.valueOf(color);
 		this.id_jugador = id_jugador;
@@ -19,6 +21,10 @@ public class Carta {
 
 	public int getId() {
 		return id;
+	}
+	
+	public int getEstado() {
+		return estado;
 	}
 
 
@@ -38,7 +44,7 @@ public class Carta {
 	@Override
 	public String toString() {
 		return "Carta [id=" + id + ", numero=" + numero + ", color=" + color
-				+ "]";
+				+ ", estado=" + estado + "]";
 	}
 	
 }

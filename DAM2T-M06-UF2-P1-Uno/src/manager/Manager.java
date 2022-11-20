@@ -33,16 +33,19 @@ public class Manager {
 	public void init() {
 		try {
 			dao.connectar();
-			if (checkUsuario() && initJuego()) {
+			boolean checked = checkUsuario();
+			if (checked && initJuego()) {
 				jugarCarta();
 			}
-			else System.out.println("Usuario o password incorrectos");
+			else if (!checked) 
+				System.out.println("Usuario o password incorrectos");
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				dao.desconectar();
+				System.out.println("Fin de jugada...");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -59,24 +62,14 @@ public class Manager {
 				robarCartas(1);
 			} else {
 				jugada = seleccionaCarta(carta);
-				jugada = validarCarta(jugada);
+				if (jugada == null)
+					System.out.println("Carta incorrecta, selecciona una nueva carta...");
 			}
 		} while (jugada == null);
 		
 		dao.jugarCarta(jugada);
 		this.cartas.remove(jugada);
 		if (this.cartas.size() == 0) finPartida();
-	}
-
-	private Carta validarCarta(Carta jugada) {
-		if (ultimaJugada != null) {
-			if (ultimaJugada.getColor().equalsIgnoreCase(jugada.getColor())) return jugada;
-			if (ultimaJugada.getColor().equalsIgnoreCase(Color.NEGRO.name())) return jugada;
-			if (jugada.getColor().equalsIgnoreCase(Color.NEGRO.name())) return jugada;
-			return null;
-		} else {
-			return jugada;
-		}
 	}
 
 	private void finPartida() throws SQLException {
@@ -87,8 +80,9 @@ public class Manager {
 
 	private Carta seleccionaCarta(int carta) {
 		Carta jugada = this.cartas.get(carta);
-		if (ultimaJugada == null || jugada.getColor().equals(ultimaJugada.getColor()) || jugada.getNumero().equals(Numero.CAMBIOCOLOR.toString()) || 
-				jugada.getNumero().equals(Numero.MASCUATRO.toString())) return jugada;
+		if (ultimaJugada == null || jugada.getColor().equals(ultimaJugada.getColor()) || jugada.getNumero().equals(ultimaJugada.getNumero()) || 
+				jugada.getColor().equals(Color.NEGRO.toString()) || jugada.getColor().equals(Color.NEGRO.toString()) ||
+				ultimaJugada.getColor().equals(Color.NEGRO.toString())) return jugada;
 		return null;
 	}
 
@@ -117,22 +111,46 @@ public class Manager {
 		cartas = dao.getManoJugador(jugador.getId());
 		if (cartas.size() == 0) robarCartas(7);
 		ultimaJugada = dao.getUltimaCartaJugada();
-		if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.MASDOS.toString())) robarCartas(2);
-		if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.MASCUATRO.toString())) robarCartas(4);
-		if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.SALTO.toString()) || ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.CAMBIO.toString())) {
-			dao.borrarUltimaCartaJugada(ultimaJugada);
-			return false;
+		System.out.println("Ultima carta Jugada: " + (ultimaJugada == null ? "No hay ultima jugada." : ultimaJugada));
+		if (ultimaJugada != null && ultimaJugada.getEstado() == 0) {
+			if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.MASDOS.toString())) {
+				return cartasEspeciales(2);
+			}
+			if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.MASCUATRO.toString())) {
+				return cartasEspeciales(4);
+			}
+			if (ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.SALTO.toString()) || 
+					ultimaJugada != null && ultimaJugada.getNumero().equalsIgnoreCase(Numero.CAMBIO.toString())) {
+				return cartasEspeciales(0);
+			}
 		}
 		return true;
+	}
+	
+	private boolean cartasEspeciales(int robar) throws SQLException {
+		robarCartas(robar);
+		dao.marcarCartaEstado1(ultimaJugada);
+		return false;
 	}
 	
 	private void robarCartas(int numCartas) throws SQLException {
 		for (int i = 0; i < numCartas; i++) {
 			int id = dao.getUltimoIdCarta();
-			Carta c = new Carta(id, Numero.getNumeroRandom(), Color.getColorRandom(), jugador.getId());
+			String color = Color.getColorRandom();
+			String numero = Numero.getNumeroRandom();
+			if (color.equals(Color.NEGRO.toString())) {
+				while (!numero.equals(Numero.CAMBIOCOLOR.toString()) && !numero.equals(Numero.MASCUATRO.toString())) {
+					numero = Numero.getNumeroRandom();
+				}
+			}
+			if (numero.equals(Numero.CAMBIOCOLOR.toString()) || numero.equals(Numero.MASCUATRO.toString())) {
+				color = Color.NEGRO.toString();
+			}
+			Carta c = new Carta(id, numero, color, jugador.getId(), 0);
 			dao.guardarCarta(c);
 			cartas.add(c);
 		}
+		if (numCartas > 0) System.out.println("Has robado " + numCartas + " cartas...");
 	}
 
 

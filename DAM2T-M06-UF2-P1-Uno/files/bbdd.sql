@@ -21,8 +21,10 @@ create table carta (
 create table partida (
 	id int primary key auto_increment,
     id_carta int,
+    estado int default 0,
     constraint carta_partida foreign key (id_carta) references carta (id)
     
 );
 
 insert into jugador values (1,'hector','123','hector',0,0);
+insert into jugador values (2,'pedro','123','hector',0,0);
